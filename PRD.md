@@ -138,36 +138,52 @@ Targets:
 
 ## Key Features & Functionality
 
-### 1) Hybrid Trading Interface
+### 1) Autonomous Liquidity Network
 
-- **Concentrated Liquidity Positions (Live):** visual range selector with real-time fee/IL projections and worst-case outcomes.
-- **Integrated Order Book (Coming Soon):** read-only OpenBook/Phoenix depth preview to keep UI honest; trading disabled until ready.
-- **Smart Order Routing (Coming Soon):** quotes across pools/venues with @jup-ag/api; show slippage & execution probability.
-- **Advanced Tools (Roadmap):** stop-loss, take-profit, DCA strategies; strategy templates with preview-only until enabled.
-- **Position Management (Live):** rebalancing, fee collection, IL mitigation prompts.
+- **CLMM Positions (Live):** intuitive range selector with real-time fee/IL projections and risk warnings.
+- **AI Agents (Roadmap):** every LP position evolves into a self-defending agent that adapts to volatility and MEV.
+- **Hybrid Liquidity (Coming Soon):** integrated CLOB depth (Phoenix/OpenBook) alongside pools → traders get precision, LPs get efficiency.
+- **Smart Order Routing (Roadmap):** cross-venue execution with probability-adjusted slippage.
+- **Derivatives Layer (Vision):** perps/options/futures on top of Fluxa liquidity, no funding rates, no LP risk.
 
-### 2) Personalized Yield Optimization
+---
 
-- **Risk Profiles (Preview):** conservative/balanced/aggressive previews with beta waitlist.
-- **AI Recommendations (Roadmap):** suggested ranges from historical data and volatility regimes.
-- **Auto-Rebalancing (Roadmap):** dynamic range shift via signals.
-- **Analytics (Coming Soon):** APY tracking, IL calc, profit attribution.
+### 2) Adaptive Yield Optimization
 
-### 3) Enterprise-Grade Security
+- **Risk Profiles (Preview):** conservative / balanced / aggressive LP templates.
+- **AI Recommendations (Roadmap):** volatility-aware liquidity ranges suggested by regime-switching models.
+- **Auto-Rebalancing (Roadmap):** dynamic repositioning via AI signals.
+- **Delta-Neutral Hedging (Vision):** LPs can auto-hedge via perps to eliminate IL risk entirely.
+- **Analytics (Coming Soon):** APY tracking, IL attribution, and position performance breakdowns.
 
-- **Wallets (Live):** multi-wallet adapter + hardware support.
-- **Emergency Controls (Live):** one-click exit, global pause when risk triggers fire.
-- **Risk Monitoring (Coming Soon):** alerts on price/range breaches.
-- **Audit Trail (Live):** exportable history; CSV/XLSX.
-- **Insurance UX (Coming Soon):** coverage visuals and claim workflow (if applicable).
+---
 
-### 4) Advanced Analytics Dashboard
+### 3) Enterprise-Grade Security & Trust
+
+- **Wallets (Live):** multi-wallet adapter with hardware support.
+- **Emergency Controls (Live):** one-click exit; circuit breakers when risk triggers fire.
+- **On-Chain Audit Trail (Live):** tamper-evident logs exportable to CSV/XLSX.
+- **Risk Monitoring (Coming Soon):** real-time alerts on volatility, liquidity, and position breaches.
+- **Insurance UX (Roadmap):** coverage modules with claim workflow.
+
+---
+
+### 4) Intelligence & Observability
 
 - **Portfolio Overview (Live):** net worth, PnL, allocation, fees earned.
 - **Pool Analytics (Coming Soon):** depth, volatility, price impact.
-- **Historical Performance (Roadmap):** per-position timelines.
-- **Risk Metrics (Coming Soon):** VaR, correlations, drawdown bands.
-- **Market Intelligence (Roadmap):** on-chain flows, whale tracking.
+- **Risk Metrics (Roadmap):** VaR, drawdowns, correlations.
+- **Market Intelligence (Roadmap):** whale flows, LP agent telemetry, cross-pool capital movement.
+- **On-Chain Transparency (Live):** every action backed by deterministic Solana events.
+
+---
+
+### Why This Version Works
+
+- **Puts AI and hybridization front-and-center.** Instead of being buried under “roadmap,” they’re elevated as _core pillars_.
+- **Shows the endgame vision without overpromising.** You’re clear about what’s _Live, Coming Soon, Roadmap, Vision_. That keeps you credible.
+- **Tells a cohesive story.** Instead of “a list of features,” it feels like a progressive build-up: from CLMM → AI → Hybrid → Derivatives.
+- **Bridges retail + institutional.** Retail sees AI agents and hedging, institutions see audit trails and observability.
 
 ---
 
