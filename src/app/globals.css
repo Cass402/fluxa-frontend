@@ -1,26 +1,117 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  color-scheme: light dark;
+  --background: #f7f9ff;
+  --foreground: #0b1021;
+  --surface-card: rgba(255, 255, 255, 0.86);
+  --surface-muted: rgba(240, 244, 255, 0.85);
+  --surface-raised: rgba(255, 255, 255, 0.74);
+  --border-soft: rgba(99, 102, 241, 0.24);
+  --border-subtle: rgba(148, 163, 184, 0.35);
+  --brand: #4c5dff;
+  --brand-soft: rgba(76, 93, 255, 0.46);
+  --accent: #0ea5e9;
+  --text-muted: rgba(15, 23, 42, 0.74);
+  --text-subtle: rgba(71, 85, 105, 0.7);
+  --gridline: rgba(148, 163, 184, 0.18);
+  --status-live-bg: rgba(34, 197, 94, 0.18);
+  --status-live-fg: #0f766e;
+  --status-live-ring: rgba(34, 197, 94, 0.32);
+  --status-soon-bg: rgba(59, 130, 246, 0.15);
+  --status-soon-fg: #1d4ed8;
+  --status-soon-ring: rgba(37, 99, 235, 0.35);
+  --status-roadmap-bg: rgba(168, 85, 247, 0.16);
+  --status-roadmap-fg: #6d28d9;
+  --status-roadmap-ring: rgba(147, 51, 234, 0.35);
+  --status-preview-bg: rgba(251, 191, 36, 0.16);
+  --status-preview-fg: #b45309;
+  --status-preview-ring: rgba(217, 119, 6, 0.38);
+  --status-beta-bg: rgba(249, 115, 22, 0.16);
+  --status-beta-fg: #c2410c;
+  --status-beta-ring: rgba(251, 146, 60, 0.36);
+  --shadow-glow: 0 30px 80px rgba(76, 93, 255, 0.22);
+  --shadow-focus: 0 0 0 0.25rem rgba(76, 93, 255, 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #040611;
+    --foreground: #f6f8ff;
+    --surface-card: rgba(11, 16, 32, 0.95);
+    --surface-muted: rgba(12, 19, 36, 0.86);
+    --surface-raised: rgba(17, 25, 48, 0.9);
+    --border-soft: rgba(100, 116, 255, 0.22);
+    --border-subtle: rgba(120, 141, 255, 0.18);
+    --brand: #7c5cff;
+    --brand-soft: rgba(124, 92, 255, 0.44);
+    --accent: #38bdf8;
+    --text-muted: rgba(219, 231, 255, 0.82);
+    --text-subtle: rgba(178, 197, 255, 0.62);
+    --gridline: rgba(100, 116, 255, 0.14);
+    --status-live-bg: rgba(34, 197, 94, 0.18);
+    --status-live-fg: #bbf7d0;
+    --status-live-ring: rgba(34, 197, 94, 0.45);
+    --status-soon-bg: rgba(59, 130, 246, 0.2);
+    --status-soon-fg: #bfdbfe;
+    --status-soon-ring: rgba(59, 130, 246, 0.48);
+    --status-roadmap-bg: rgba(168, 85, 247, 0.22);
+    --status-roadmap-fg: #e9d5ff;
+    --status-roadmap-ring: rgba(168, 85, 247, 0.48);
+    --status-preview-bg: rgba(251, 191, 36, 0.22);
+    --status-preview-fg: #fde68a;
+    --status-preview-ring: rgba(251, 191, 36, 0.44);
+    --status-beta-bg: rgba(249, 115, 22, 0.22);
+    --status-beta-fg: #fed7aa;
+    --status-beta-ring: rgba(249, 115, 22, 0.46);
+    --shadow-focus: 0 0 0 0.25rem rgba(124, 92, 255, 0.35);
   }
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgba(76, 93, 255, 0.22) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.65) 0%,
+      rgba(255, 255, 255, 0) 40%
+    ),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    var(--font-geist-sans),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  min-height: 100dvh;
+  margin: 0;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: rgba(76, 93, 255, 0.25);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 4px;
+  box-shadow: var(--shadow-focus);
+}
+
+a {
+  color: inherit;
+}
+
+@supports (field-sizing: content) {
+  textarea {
+    field-sizing: content;
+  }
 }
