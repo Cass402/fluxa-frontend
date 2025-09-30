@@ -14,6 +14,7 @@ import { MetricCard } from "@/components/metric-card";
 import { RoadmapCard } from "@/components/roadmap-card";
 import { SectionHeading } from "@/components/section-heading";
 import { StatusPill } from "@/components/status-pill";
+import { StoryTimeline } from "@/components/story-timeline";
 import { TrustIndicator } from "@/components/trust-indicator";
 
 const heroMetrics = [
@@ -25,6 +26,7 @@ const heroMetrics = [
     badge: <span>Raydium delta: -11 bps</span>,
     sparkline: [0.32, 0.3, 0.28, 0.26, 0.25, 0.23, 0.22, 0.21],
     sparklineLabel: "Testnet impermanent-loss delta over 30 days",
+    sparklineColor: "var(--accent)",
   },
   {
     value: "97%",
@@ -226,41 +228,41 @@ export default function Home() {
   return (
     <div className="relative isolate">
       <div className="pointer-events-none absolute inset-x-0 top-[-10rem] z-[-1] h-[32rem] bg-gradient-to-b from-[color:var(--brand-soft)]/40 via-transparent to-transparent" />
-      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-24 px-6 pb-24 pt-16 sm:px-8 lg:px-12">
+      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-5 pb-20 pt-14 sm:px-8 sm:pb-24 sm:pt-16 lg:gap-24 lg:px-12">
         <section
-          className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-center"
+          className="grid gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-center lg:gap-12"
           id="hero"
         >
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6 sm:gap-8">
             <StatusPill stage="beta" label="Autonomous testnet in preview" />
-            <div className="flex flex-col gap-6">
-              <h1 className="text-balance text-4xl font-semibold tracking-tight text-[color:var(--foreground)] sm:text-5xl lg:text-6xl">
+            <div className="flex flex-col gap-5 sm:gap-6">
+              <h1 className="text-balance text-3xl font-semibold tracking-tight text-[color:var(--foreground)] sm:text-4xl lg:text-6xl">
                 Fluxa: The First Autonomous Liquidity Network on Solana
               </h1>
-              <p className="max-w-2xl text-pretty text-base text-[color:var(--text-muted)] sm:text-lg">
+              <p className="max-w-2xl text-pretty text-sm text-[color:var(--text-muted)] sm:text-base">
                 AI-powered CLMM + CLOB hybrid, evolving into the foundation for
                 perps, options, and risk-free LPing.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2.5 sm:gap-3">
               <Link
                 href="https://app.fluxa.xyz"
                 prefetch={false}
                 target="_blank"
-                className="inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:translate-y-0"
+                className="inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:translate-y-0 sm:px-6 sm:py-3"
                 rel="noreferrer"
               >
                 Launch App
               </Link>
               <Link
                 href="#roadmap"
-                className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/60 px-6 py-3 text-sm font-semibold text-[color:var(--brand)] transition duration-200 hover:border-[color:var(--brand)]"
+                className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/60 px-5 py-2.5 text-sm font-semibold text-[color:var(--brand)] transition duration-200 hover:border-[color:var(--brand)] sm:px-6 sm:py-3"
               >
                 View Roadmap
               </Link>
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3.5">
             {heroMetrics.map((metric) => (
               <MetricCard
                 key={metric.label}
@@ -268,12 +270,15 @@ export default function Home() {
                 label={metric.label}
                 annotation={metric.annotation}
                 badge={metric.badge}
+                sparkline={metric.sparkline}
+                sparklineLabel={metric.sparklineLabel}
+                sparklineColor={metric.sparklineColor}
               />
             ))}
           </div>
         </section>
 
-        <section id="story" className="flex flex-col gap-12">
+        <section id="story" className="flex flex-col gap-10 sm:gap-12">
           <SectionHeading
             eyebrow="Why Fluxa"
             title="Liquidity today is fragmented, fragile, and expensive"
@@ -295,37 +300,7 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            <div className="flex flex-col gap-4 rounded-3xl border border-[color:var(--border-soft)] bg-[color:var(--surface-muted)]/70 p-6">
-              <h3 className="text-lg font-semibold text-[color:var(--foreground)]">
-                The phased vision
-              </h3>
-              <div className="relative">
-                <div className="pointer-events-none absolute left-6 right-6 top-8 hidden md:block h-px bg-gradient-to-r from-[color:var(--border-soft)] via-[color:var(--brand-soft)] to-[color:var(--border-soft)]" />
-                <ol className="grid gap-4 md:grid-cols-2">
-                  {storyTimeline.map((phase) => (
-                    <li
-                      key={phase.title}
-                      className="relative flex flex-col gap-3 rounded-2xl border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/85 p-5 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="inline-flex size-10 items-center justify-center rounded-full bg-[color:var(--brand-soft)]/35 text-[color:var(--brand)]">
-                          {phase.icon}
-                        </span>
-                        <StatusPill stage={phase.stage} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <h4 className="text-base font-semibold text-[color:var(--foreground)]">
-                          {phase.title}
-                        </h4>
-                        <p className="text-sm text-[color:var(--text-muted)]">
-                          {phase.summary}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
+            <StoryTimeline phases={storyTimeline} />
           </div>
         </section>
 
@@ -349,7 +324,7 @@ export default function Home() {
             description="We publish the data, surface the why behind automation, and keep reliability transparent."
           />
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid gap-3.5 sm:grid-cols-2 sm:gap-5">
               {proofMetrics.map((metric) => (
                 <MetricCard
                   key={`proof-${metric.label}`}
@@ -387,15 +362,15 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="roadmap" className="flex flex-col gap-12">
+        <section id="roadmap" className="flex flex-col gap-10 lg:gap-12">
           <SectionHeading
             eyebrow="Roadmap"
             title="Four phases take Fluxa from trusted CLMM to autonomous derivatives"
             description="The north-star graphic doubles as your planning tool—see what is live, what’s next, and where we are headed."
           />
           <div className="relative">
-            <div className="pointer-events-none absolute left-8 right-8 top-12 hidden lg:block h-px bg-gradient-to-r from-[color:var(--border-soft)] via-[color:var(--brand-soft)] to-[color:var(--border-soft)]" />
-            <ol className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="pointer-events-none absolute left-6 right-6 top-10 hidden lg:block h-px bg-gradient-to-r from-[color:var(--border-soft)] via-[color:var(--brand-soft)] to-[color:var(--border-soft)]" />
+            <ol className="grid gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
               {roadmap.map((item, index) => (
                 <RoadmapCard key={item.title} step={index + 1} {...item} />
               ))}

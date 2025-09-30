@@ -42,23 +42,23 @@ export function RoadmapCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={transition}
-      className={`group relative flex flex-col gap-4 rounded-3xl p-6 backdrop-blur-sm transition-shadow duration-300 hover:shadow-[0_18px_45px_rgba(15,23,42,0.28)] ${cardTone}`}
+      className={`group relative flex flex-col gap-3.5 rounded-3xl p-5 backdrop-blur-sm transition-shadow duration-300 hover:shadow-[0_18px_45px_rgba(15,23,42,0.28)] sm:gap-4 sm:p-6 ${cardTone}`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {typeof step === "number" ? (
-          <span className="inline-flex size-10 items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] text-sm font-semibold text-[color:var(--brand)] shadow-[0_10px_28px_rgba(15,23,42,0.12)]">
+          <span className="inline-flex size-9 items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] text-[0.75rem] font-semibold text-[color:var(--brand)] shadow-[0_10px_28px_rgba(15,23,42,0.12)] sm:size-10">
             {step.toString().padStart(2, "0")}
           </span>
         ) : null}
         <StatusPill stage={stage} className="self-start" />
       </div>
-      <div className="flex flex-col gap-3">
-        <h3 className="text-xl font-semibold text-[color:var(--foreground)]">
+      <div className="flex flex-col gap-2.5">
+        <h3 className="text-lg font-semibold text-[color:var(--foreground)] sm:text-xl">
           {title}
         </h3>
         <p className="text-sm text-[color:var(--text-muted)]">{description}</p>
       </div>
-      <dl className="grid gap-2 text-xs text-[color:var(--text-subtle)] sm:grid-cols-2">
+      <dl className="grid gap-1.5 text-xs text-[color:var(--text-subtle)] sm:grid-cols-2 sm:gap-2">
         <div className="flex items-center gap-2">
           <CalendarDays className="size-4" aria-hidden="true" />
           <dt className="font-medium uppercase tracking-[0.14em]">Target</dt>

@@ -31,9 +31,10 @@ export function TrustIndicator({
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -6 }}
       viewport={{ once: true, amount: 0.35 }}
-      transition={{ duration: 0.28, ease: [0.2, 0.55, 0.25, 1] }}
-      className="flex flex-col gap-4 rounded-2xl border border-[color:var(--border-soft)] bg-[color:var(--surface-muted)] p-5"
+      transition={{ duration: 0.32, ease: [0.2, 0.55, 0.25, 1] }}
+      className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-[color:var(--border-soft)] bg-[color:var(--surface-muted)]/95 p-5 shadow-[0_12px_28px_rgba(15,23,42,0.12)] transition-shadow duration-300 hover:shadow-[0_18px_40px_rgba(15,23,42,0.24)]"
     >
       <span className="inline-flex size-10 items-center justify-center rounded-full bg-[color:var(--brand-soft)]/40 text-[color:var(--brand)]">
         {iconMap[icon]}
@@ -54,6 +55,7 @@ export function TrustIndicator({
           </p>
         ) : null}
       </div>
+      <span className="pointer-events-none absolute inset-0 rounded-[calc(theme(borderRadius.2xl)+6px)] bg-gradient-to-br from-[color:var(--brand-soft)]/16 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
     </motion.article>
   );
 }
