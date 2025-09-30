@@ -1,4 +1,4 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import {
   Bot,
   Brain,
@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { CtaLink } from "@/components/cta-link";
 import { FeatureCard } from "@/components/feature-card";
 import { MetricCard } from "@/components/metric-card";
 import { RoadmapCard } from "@/components/roadmap-card";
@@ -16,6 +17,35 @@ import { SectionHeading } from "@/components/section-heading";
 import { StatusPill } from "@/components/status-pill";
 import { StoryTimeline } from "@/components/story-timeline";
 import { TrustIndicator } from "@/components/trust-indicator";
+import { WaitlistForm } from "@/components/waitlist-form";
+
+export const dynamic = "force-static";
+export const revalidate = 1800;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "Fluxa — Autonomous Liquidity Network on Solana";
+  const description =
+    "Fluxa blends CLMM and CLOB intelligence so teams manage liquidity with trust-first telemetry, explainable AI, and derivative-ready rails.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "https://app.fluxa.xyz",
+    },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: "https://app.fluxa.xyz",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
 
 const heroMetrics = [
   {
@@ -108,7 +138,11 @@ const featureHighlights = [
       "Sub-second simulations surface IL, fees, and MEV exposure.",
       "Readable Solana program decoding keeps compliance teams aligned.",
     ],
-    cta: { label: "Launch trading preview", href: "#closing" },
+    cta: {
+      label: "Launch trading preview",
+      href: "#closing",
+      featureFlag: "cta-trading-preview",
+    },
     icon: <Gauge className="size-5" aria-hidden="true" />,
   },
   {
@@ -121,7 +155,11 @@ const featureHighlights = [
       "Agent intents show why a move triggers—no black boxes.",
       "Treasury limits, SLAs, and pausing stay under human override.",
     ],
-    cta: { label: "Join agent beta", href: "#closing" },
+    cta: {
+      label: "Join agent beta",
+      href: "#closing",
+      featureFlag: "cta-join-agent-beta",
+    },
     icon: <Brain className="size-5" aria-hidden="true" />,
   },
   {
@@ -134,7 +172,11 @@ const featureHighlights = [
       "Smart order slicing balances pool health with best execution.",
       "Cross-market telemetry feeds routing without fragmenting UX.",
     ],
-    cta: { label: "Preview hybrid models", href: "#roadmap" },
+    cta: {
+      label: "Preview hybrid models",
+      href: "#roadmap",
+      featureFlag: "cta-preview-hybrid",
+    },
     icon: <Link2 className="size-5" aria-hidden="true" />,
   },
   {
@@ -147,7 +189,11 @@ const featureHighlights = [
       "Unified margin engine targets risk-free LPing.",
       "AI hedging co-pilots keep treasury posture balanced in real time.",
     ],
-    cta: { label: "See the north star", href: "#roadmap" },
+    cta: {
+      label: "See the north star",
+      href: "#roadmap",
+      featureFlag: "cta-see-north-star",
+    },
     icon: <CandlestickChart className="size-5" aria-hidden="true" />,
   },
 ];
@@ -245,21 +291,29 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2.5 sm:gap-3">
-              <Link
+              <CtaLink
+                eventId="hero-launch-app"
+                label="Launch App"
+                location="hero"
                 href="https://app.fluxa.xyz"
                 prefetch={false}
                 target="_blank"
                 className="inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:translate-y-0 sm:px-6 sm:py-3"
                 rel="noreferrer"
+                featureFlag="cta-hero-launch-app"
               >
                 Launch App
-              </Link>
-              <Link
+              </CtaLink>
+              <CtaLink
+                eventId="hero-view-roadmap"
+                label="View Roadmap"
+                location="hero"
                 href="#roadmap"
                 className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/60 px-5 py-2.5 text-sm font-semibold text-[color:var(--brand)] transition duration-200 hover:border-[color:var(--brand)] sm:px-6 sm:py-3"
+                featureFlag="cta-hero-view-roadmap"
               >
                 View Roadmap
-              </Link>
+              </CtaLink>
             </div>
           </div>
           <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3.5">
@@ -393,47 +447,34 @@ export default function Home() {
               path keeps you close to the future of decentralized markets.
             </p>
           </div>
-          <form
-            className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]"
-            aria-label="Join the Fluxa waitlist"
-          >
-            <label className="sr-only" htmlFor="email">
-              Work email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@team.co"
-              required
-              className="h-12 rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/90 px-5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--text-subtle)] focus:border-[color:var(--brand)] focus-visible:border-[color:var(--brand)]"
-            />
-            <button
-              type="submit"
-              className="h-12 rounded-full bg-[color:var(--brand)] px-6 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 focus-visible:translate-y-0"
-            >
-              Join Waitlist
-            </button>
-          </form>
+          <WaitlistForm />
           <div className="flex flex-wrap gap-3">
-            <Link
+            <CtaLink
+              eventId="closing-launch-app"
+              label="Launch App"
+              location="closing"
               href="https://app.fluxa.xyz"
               prefetch={false}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/70 px-5 py-2 text-sm font-semibold text-[color:var(--brand)] transition duration-200 hover:border-[color:var(--brand)]"
+              featureFlag="cta-closing-launch-app"
             >
               Launch App
-            </Link>
-            <Link
+            </CtaLink>
+            <CtaLink
+              eventId="closing-follow-x"
+              label="Follow on X"
+              location="closing"
               href="https://x.com/FluxaAmm"
               prefetch={false}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/70 px-5 py-2 text-sm font-semibold text-[color:var(--brand)] transition duration-200 hover:border-[color:var(--brand)]"
+              featureFlag="cta-closing-follow-x"
             >
               Follow on X
-            </Link>
+            </CtaLink>
           </div>
           <p className="text-xs text-[color:var(--text-subtle)]">
             By signing up you agree to receive Fluxa updates. Opt out anytime—we

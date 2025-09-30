@@ -3,6 +3,10 @@
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
+
+import { useFeatureFlag } from "@/hooks/use-feature-flag";
+import { trackCtaClick } from "@/lib/telemetry";
+
 import { StatusPill, type Stage } from "./status-pill";
 
 interface FeatureCardProps {
@@ -14,6 +18,8 @@ interface FeatureCardProps {
   cta?: {
     label: string;
     href: string;
+    featureFlag?: string;
+    featureFlagDefaultEnabled?: boolean;
   };
   icon?: ReactNode;
 }
@@ -32,6 +38,11 @@ export function FeatureCard({
   cta,
   icon,
 }: FeatureCardProps) {
+  const flagState = useFeatureFlag(cta?.featureFlag, {
+    defaultEnabled: cta?.featureFlagDefaultEnabled ?? true,
+  });
+  const showCta = cta ? !cta.featureFlag || flagState.enabled : false;
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 28 }}
@@ -72,10 +83,34 @@ export function FeatureCard({
           ) : null}
         </div>
       </div>
-      {cta ? (
+      {cta && showCta ? (
         <motion.a
           href={cta.href}
           className="group inline-flex items-center gap-2 text-sm font-semibold text-[color:var(--brand)]"
+          onClick={() =>
+            trackCtaClick({
+              id: `feature-${title}`,
+              label: cta.label,
+              location: "feature_highlights",
+              href: cta.href,
+              metadata: {
+                stage,
+                kicker,
+                ...(cta.featureFlag
+                  ? {
+                      feature_flag: cta.featureFlag,
+                      feature_flag_variant: flagState.variant,
+                      feature_flag_available: flagState.available,
+                      ...(flagState.payload !== undefined
+                        ? {
+                            feature_flag_payload: flagState.payload,
+                          }
+                        : {}),
+                    }
+                  : {}),
+              },
+            })
+          }
           whileHover={{ x: 4 }}
           transition={cardTransition}
         >
