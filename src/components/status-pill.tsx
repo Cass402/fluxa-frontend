@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 
-export type Stage = "live" | "comingSoon" | "roadmap" | "preview" | "beta";
+export type Stage =
+  | "live"
+  | "comingSoon"
+  | "roadmap"
+  | "vision"
+  | "preview"
+  | "beta";
 
 type StageDefinition = {
   label: string;
@@ -27,6 +33,12 @@ const stageMap: Record<Stage, StageDefinition> = {
     description: "Planned for later phases of the roadmap",
     className:
       "bg-[color:var(--status-roadmap-bg)] text-[color:var(--status-roadmap-fg)] ring-1 ring-inset ring-[color:var(--status-roadmap-ring)]",
+  },
+  vision: {
+    label: "Vision",
+    description: "North-star concepts guiding Fluxa’s evolution",
+    className:
+      "bg-[color:var(--status-vision-bg)] text-[color:var(--status-vision-fg)] ring-1 ring-inset ring-[color:var(--status-vision-ring)]",
   },
   preview: {
     label: "Preview",

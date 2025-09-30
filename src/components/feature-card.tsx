@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { StatusPill, type Stage } from "./status-pill";
@@ -14,6 +15,7 @@ interface FeatureCardProps {
     label: string;
     href: string;
   };
+  icon?: ReactNode;
 }
 
 const cardTransition = {
@@ -28,6 +30,7 @@ export function FeatureCard({
   description,
   highlights,
   cta,
+  icon,
 }: FeatureCardProps) {
   return (
     <motion.article
@@ -39,7 +42,14 @@ export function FeatureCard({
     >
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">
-          <StatusPill stage={stage} />
+          <div className="flex items-center gap-3">
+            {icon ? (
+              <span className="inline-flex size-10 items-center justify-center rounded-full bg-[color:var(--brand-soft)]/30 text-[color:var(--brand)]">
+                {icon}
+              </span>
+            ) : null}
+            <StatusPill stage={stage} />
+          </div>
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--text-subtle)]">
             {kicker}
           </span>
