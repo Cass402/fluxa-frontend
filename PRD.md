@@ -120,6 +120,13 @@ Targets:
 - **Observability:** OTel + Sentry wired via `instrumentation.ts`.
 - **PWA skeleton:** Workbox SW (offline portfolio view), background sync for queued actions.
 
+### Phase 1.5: External Portfolio Lens (Post-launch, immediately following Phase 1)
+
+- **Read-only Orca/Raydium ingestion** surfaced in the Fluxa dashboard with clear labelling.
+- **Acquisition-friendly onboarding:** zero-signature wallet sync, roadmap callouts, migration prompts.
+- **AI teaser flows:** show what Fluxa agents would do with external positions; upsell once native liquidity deepens.
+- **No protocol execution yet:** maintain protocol-first messaging while offering aggregator visibility to drive adoption.
+
 ### Phase 2: Intelligence (Months 4–6)
 
 - **AI-powered risk assessment** (server-side LLM adapter).
@@ -134,6 +141,17 @@ Targets:
 - **Social proof (anonymized):** cohort comparisons; no copy-trading.
 - **Full internationalization** with translation memory workflow.
 
+#### Current Frontend Backlog Snapshot
+
+- **Phase 1 (Native Fluxa launch)**
+  - Fluxa CLMM positions dashboard with AI guardrail panel and telemetry modules.
+  - Pool directory + creation flows wired to native contracts.
+  - Observability surface (trust score, latency monitor) and instrumentation hooks.
+- **Phase 1.5 (External lens upgrade)**
+  - Read-only portfolio ingestion for Orca and Raydium positions with protocol badges.
+  - Migration CTA and AI insight teasers tailored to external liquidity.
+  - Subscription toggle and analytics to measure external-to-native conversion.
+
 ---
 
 ## Key Features & Functionality
@@ -141,6 +159,7 @@ Targets:
 ### 1) Autonomous Liquidity Network
 
 - **CLMM Positions (Live):** intuitive range selector with real-time fee/IL projections and risk warnings.
+- **Portfolio Lens (Phase 1.5):** read-only Orca/Raydium visibility inside Fluxa to prime migration and AI upsell.
 - **AI Agents (Roadmap):** every LP position evolves into a self-defending agent that adapts to volatility and MEV.
 - **Hybrid Liquidity (Coming Soon):** integrated CLOB depth (Phoenix/OpenBook) alongside pools → traders get precision, LPs get efficiency.
 - **Smart Order Routing (Roadmap):** cross-venue execution with probability-adjusted slippage.
