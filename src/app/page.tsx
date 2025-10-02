@@ -4,6 +4,7 @@ import {
   Brain,
   CandlestickChart,
   Droplet,
+  Layers,
   Gauge,
   Link2,
   Sparkles,
@@ -16,6 +17,7 @@ import { RoadmapCard } from "@/components/roadmap-card";
 import { SectionHeading } from "@/components/section-heading";
 import { StatusPill } from "@/components/status-pill";
 import { StoryTimeline } from "@/components/story-timeline";
+import { TradingPreview } from "@/components/trading-preview";
 import { TrustIndicator } from "@/components/trust-indicator";
 import { WaitlistForm } from "@/components/waitlist-form";
 
@@ -147,6 +149,24 @@ const featureHighlights = [
   },
   {
     stage: "comingSoon" as const,
+    kicker: "Phase 1.5",
+    title: "External portfolio lens",
+    description:
+      "Right after Fluxa mainnet launch, plug in read-only Orca and Raydium positions without leaving the Fluxa desk.",
+    highlights: [
+      "Surface existing CLMM positions in a single trust-first dashboard.",
+      "Zero-signature, read-only access keeps acquisition frictionless.",
+      "Migration prompts and AI subscriptions arrive once Fluxa liquidity deepens.",
+    ],
+    cta: {
+      label: "See roadmap",
+      href: "#roadmap",
+      featureFlag: "cta-phase15-roadmap",
+    },
+    icon: <Layers className="size-5" aria-hidden="true" />,
+  },
+  {
+    stage: "comingSoon" as const,
     kicker: "Autonomy",
     title: "AI LP agents that defend capital",
     description:
@@ -245,6 +265,16 @@ const roadmap = [
   },
   {
     stage: "comingSoon" as const,
+    title: "Phase 1.5 · External portfolio lens",
+    description:
+      "Read-only Orca and Raydium visibility to fuel acquisition while Fluxa liquidity scales.",
+    eta: "Post-launch",
+    cohortSize: 800,
+    focus:
+      "Zero-friction wallet sync, migration insights, and AI teaser flows.",
+  },
+  {
+    stage: "comingSoon" as const,
     title: "Phase 2 · AI LP agents",
     description:
       "Policy-driven bots manage ranges, fees, and hedges with human override.",
@@ -331,6 +361,8 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        <TradingPreview />
 
         <section id="story" className="flex flex-col gap-10 sm:gap-12">
           <SectionHeading

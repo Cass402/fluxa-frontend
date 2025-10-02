@@ -42,7 +42,7 @@ export function WaitlistForm() {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<WaitlistPayload>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
@@ -114,14 +114,15 @@ export function WaitlistForm() {
           Work email
         </label>
         <input
+          type="email"
           id="email"
           {...register("email")}
-          type="email"
-          placeholder="you@team.co"
-          aria-invalid={Boolean(errors.email)}
+          placeholder="you@example.com"
+          className="mt-1 block w-full rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--background)] px-4 py-2.5 text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--text-subtle)] focus:border-[color:var(--brand)] focus:outline-none focus:ring-2 focus:ring-[color:var(--brand)]/20 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={isSubmitting}
+          required
+          aria-invalid={errors.email ? "true" : "false"}
           aria-describedby={errors.email ? "email-error" : undefined}
-          className="h-12 rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/90 px-5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--text-subtle)] focus:border-[color:var(--brand)] focus-visible:border-[color:var(--brand)]"
-          disabled={mutation.isPending}
         />
         {errors.email ? (
           <p
