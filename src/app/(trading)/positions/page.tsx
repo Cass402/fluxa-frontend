@@ -1,8 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { Wallet } from "lucide-react";
+import { AlertTriangle, BadgeCheck, RefreshCcw, Wallet } from "lucide-react";
+
+import { AIGuardrailPanel } from "@/components/trading/ai-guardrail-panel";
+import { PositionCard } from "@/components/trading/position-card";
+import { PositionSummary } from "@/components/trading/position-summary";
+import { TrustMetricCard } from "@/components/trading/trust-metric-card";
+import { useFluxaPositionsOverview } from "@/lib/hooks/use-fluxa-positions";
 
 /**
  * Positions dashboard - shows all CLMM positions for connected wallet.
@@ -10,6 +17,39 @@ import { Wallet } from "lucide-react";
  */
 export default function PositionsPage() {
   const { connected } = useWallet();
+  const { positionsQuery, guardrailQuery, trustMetricsQuery, summaryMetrics } =
+    useFluxaPositionsOverview();
+
+  const positions = positionsQuery.data ?? [];
+  const guardrails = guardrailQuery.data ?? [];
+  const trustMetrics = trustMetricsQuery.data ?? [];
+
+  const isPending =
+    positionsQuery.isPending ||
+    guardrailQuery.isPending ||
+    trustMetricsQuery.isPending;
+  const hasHydratedData =
+    positions.length > 0 || guardrails.length > 0 || trustMetrics.length > 0;
+  const showSkeleton = isPending && !hasHydratedData;
+
+  const isError =
+    positionsQuery.isError ||
+    guardrailQuery.isError ||
+    trustMetricsQuery.isError;
+  const combinedError =
+    positionsQuery.error || guardrailQuery.error || trustMetricsQuery.error;
+  const isRefetching =
+    positionsQuery.isFetching ||
+    guardrailQuery.isFetching ||
+    trustMetricsQuery.isFetching;
+
+  const handleRetry = () => {
+    void Promise.all([
+      positionsQuery.refetch(),
+      guardrailQuery.refetch(),
+      trustMetricsQuery.refetch(),
+    ]);
+  };
 
   if (!connected) {
     return (
@@ -70,65 +110,222 @@ export default function PositionsPage() {
     );
   }
 
-  // Connected but no positions yet (we'll implement position fetching next)
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[color:var(--foreground)]">
-          Your Positions
-        </h1>
-        <p className="mt-2 text-sm text-[color:var(--text-subtle)]">
-          Manage your Fluxa CLMM positions today. External protocol visibility
-          lands in Phase 1.5 right after launch.
-        </p>
+    <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-[color:var(--foreground)]">
+            Fluxa positions desk
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-[color:var(--text-subtle)]">
+            Track every Fluxa CLMM deployment with explainable AI guardrails.
+            Phase 1.5 adds read-only Orca/Raydium visibility so you can decide
+            when to migrate liquidity.
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] px-4 py-1.5 text-xs font-semibold text-[color:var(--brand)]">
+          <BadgeCheck className="size-4" aria-hidden="true" />
+          Fluxa mainnet beta
+        </span>
+      </section>
+
+      {isError && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm text-red-700 shadow-[0_14px_35px_rgba(10,19,40,0.08)] dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 size-5" aria-hidden="true" />
+            <div className="space-y-1">
+              <p className="font-semibold">
+                Telemetry refresh is delayed. Showing the latest cached data.
+              </p>
+              {combinedError instanceof Error ? (
+                <p className="text-xs opacity-80">{combinedError.message}</p>
+              ) : null}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleRetry}
+            disabled={isRefetching}
+            className="inline-flex w-fit items-center gap-2 self-start rounded-lg border border-[color:var(--border-soft)] bg-white/90 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand)] transition hover:border-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[color:var(--surface-card)]"
+          >
+            <RefreshCcw className="size-3.5" aria-hidden="true" />
+            Retry sync
+          </button>
+        </div>
+      )}
+
+      {showSkeleton ? (
+        <SummarySkeleton />
+      ) : (
+        <PositionSummary metrics={summaryMetrics} />
+      )}
+
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
+        {showSkeleton ? (
+          <GuardrailSkeleton />
+        ) : (
+          <AIGuardrailPanel insights={guardrails} />
+        )}
+        <section aria-label="Trust telemetry" className="flex flex-col gap-3">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--text-subtle)]">
+            Reliability telemetry
+          </h2>
+          {showSkeleton ? (
+            <TrustTelemetrySkeleton />
+          ) : trustMetrics.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {trustMetrics.map((metric) => (
+                <TrustMetricCard key={metric.label} metric={metric} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/80 p-4 text-sm text-[color:var(--text-muted)]">
+              Trust telemetry will light up once your first Fluxa deployment is
+              live.
+            </div>
+          )}
+        </section>
       </div>
 
-      {/* Empty State */}
-      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed border-[color:var(--border-subtle)] bg-[color:var(--surface-card)] p-12 text-center">
-        <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-[color:var(--surface-muted)]">
-          <svg
-            className="size-8 text-[color:var(--text-subtle)]"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
+      <section aria-label="Active Fluxa positions" className="space-y-4">
+        <header className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-[color:var(--foreground)]">
+              Active positions ({positions.length})
+            </h2>
+            <p className="text-sm text-[color:var(--text-muted)]">
+              All data routed through Helius RPC with live AI agents narrating
+              every action. Roadmap: add external protocol visibility in Phase
+              1.5.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)] transition hover:border-[color:var(--brand-soft)] hover:text-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={positions.length === 0}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+            Export performance CSV
+          </button>
+        </header>
+
+        {showSkeleton ? (
+          <PositionsSkeleton />
+        ) : positions.length > 0 ? (
+          <div className="grid gap-5">
+            {positions.map((position) => (
+              <PositionCard key={position.id} position={position} />
+            ))}
+          </div>
+        ) : (
+          <PositionsEmptyState />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function SummarySkeleton() {
+  return (
+    <section
+      aria-label="Portfolio summary loading"
+      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={index}
+          className="animate-pulse rounded-xl border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/70 p-4"
+        >
+          <div className="h-3 w-24 rounded bg-[color:var(--border-soft)]" />
+          <div className="mt-6 h-8 w-32 rounded bg-[color:var(--border-soft)]" />
+          <div className="mt-4 h-3 w-40 rounded bg-[color:var(--border-subtle)]" />
         </div>
-        <h2 className="mb-2 text-xl font-semibold text-[color:var(--foreground)]">
-          No positions found
-        </h2>
-        <p className="mb-6 max-w-md text-sm text-[color:var(--text-subtle)]">
-          We couldn&apos;t find any Fluxa CLMM positions for this wallet yet.
-          Your existing Orca/Raydium positions become visible in the dashboard
-          once Phase 1.5 ships.
-        </p>
-        <div className="flex gap-3">
-          <a
-            href="https://docs.fluxa.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)] px-4 py-2 text-sm font-medium text-[color:var(--foreground)] transition-all hover:border-[color:var(--brand-soft)] hover:bg-[color:var(--surface-muted)]"
-          >
-            Read launch playbook ↗
-          </a>
-          <a
-            href="https://app.fluxa.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)] px-4 py-2 text-sm font-medium text-[color:var(--foreground)] transition-all hover:border-[color:var(--brand-soft)] hover:bg-[color:var(--surface-muted)]"
-          >
-            Create Fluxa position ↗
-          </a>
+      ))}
+    </section>
+  );
+}
+
+function GuardrailSkeleton() {
+  return (
+    <section className="rounded-2xl border border-[color:var(--border-soft)] bg-[color:var(--surface-raised)] p-6">
+      <div className="flex flex-col gap-4">
+        <div className="space-y-2">
+          <div className="h-4 w-48 animate-pulse rounded bg-[color:var(--border-soft)]" />
+          <div className="h-3 w-64 animate-pulse rounded bg-[color:var(--border-subtle)]" />
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex h-full animate-pulse flex-col justify-between rounded-xl border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] p-4"
+            >
+              <div className="h-3 w-24 rounded bg-[color:var(--border-subtle)]" />
+              <div className="mt-4 space-y-2">
+                <div className="h-4 w-36 rounded bg-[color:var(--border-soft)]" />
+                <div className="h-3 w-40 rounded bg-[color:var(--border-subtle)]" />
+              </div>
+              <div className="mt-4 h-8 w-28 rounded bg-[color:var(--border-soft)]" />
+            </div>
+          ))}
         </div>
       </div>
+    </section>
+  );
+}
+
+function TrustTelemetrySkeleton() {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={index}
+          className="h-24 animate-pulse rounded-xl border border-[color:var(--border-soft)] bg-[color:var(--surface-card)]"
+        />
+      ))}
+    </div>
+  );
+}
+
+function PositionsSkeleton() {
+  return (
+    <div className="grid gap-5">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="animate-pulse rounded-2xl border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] p-6"
+        >
+          <div className="h-4 w-48 rounded bg-[color:var(--border-soft)]" />
+          <div className="mt-4 h-3 w-56 rounded bg-[color:var(--border-subtle)]" />
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            <div className="h-16 rounded bg-[color:var(--border-subtle)]" />
+            <div className="h-16 rounded bg-[color:var(--border-subtle)]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PositionsEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-[color:var(--border-soft)] bg-[color:var(--surface-card)]/80 px-6 py-16 text-center text-sm text-[color:var(--text-muted)]">
+      <p className="max-w-md text-base font-semibold text-[color:var(--foreground)]">
+        No Fluxa positions yet. Deploy your first strategy to activate AI
+        guardrails and trust telemetry.
+      </p>
+      <div className="space-y-2 text-xs text-[color:var(--text-subtle)]">
+        <p>We&apos;ll surface Orca/Raydium visibility right after launch.</p>
+        <p>Fluxa stays read-only—no signatures, no permissions.</p>
+      </div>
+      <Link
+        href="/pools"
+        className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)]"
+      >
+        Explore Fluxa pools
+      </Link>
     </div>
   );
 }

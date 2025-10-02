@@ -9,7 +9,7 @@ import { WalletButton } from "@/components/wallet/wallet-button";
 
 const navigation = [
   { name: "Positions", href: "/positions", badge: null },
-  { name: "Pools", href: "/pools", badge: "Soon" },
+  { name: "Pools", href: "/pools", badge: "Beta" },
   { name: "Swap", href: "/swap", badge: "Soon" },
 ] as const;
 
