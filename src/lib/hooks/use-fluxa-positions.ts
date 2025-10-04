@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Positions overview hooks currently proxy to the mock data layer under
+ * {@link @/lib/data/fluxa}. Toggle NEXT_PUBLIC_USE_MOCKS to replace the
+ * underlying fetchers with live integrations.
+ */
+
 import { useMemo } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 

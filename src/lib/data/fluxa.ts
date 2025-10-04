@@ -1,11 +1,23 @@
+import {
+  ensureMockDataEnabled,
+  isMockDataEnabled,
+} from "@/lib/config/feature-flags";
+
 const DEFAULT_LATENCY = { min: 120, max: 260 } as const;
 
 function simulateLatency(
   min: number = DEFAULT_LATENCY.min,
   max: number = DEFAULT_LATENCY.max
 ) {
+  if (!isMockDataEnabled()) {
+    return Promise.resolve();
+  }
   const duration = Math.random() * (max - min) + min;
   return new Promise((resolve) => setTimeout(resolve, duration));
+}
+
+function requireMocks(featureName: string) {
+  ensureMockDataEnabled(featureName);
 }
 
 export type FluxaPositionStatus = "inRange" | "edge" | "outRange";
@@ -34,6 +46,7 @@ export interface FluxaPosition {
 
 export interface GuardrailInsight {
   id: string;
+  positionId: string;
   title: string;
   description: string;
   urgency: "monitor" | "soon" | "now";
@@ -188,11 +201,56 @@ const mockFluxaPositions: FluxaPosition[] = [
     unclaimedFeesUsd: 198,
     timeInRangeHours: 67,
   },
+  {
+    id: "msol-sol-stability",
+    pool: "Fluxa mSOL/SOL",
+    pair: "mSOL · SOL",
+    liquidityUsd: 186_400,
+    fees24hUsd: 284,
+    totalFeesUsd: 7_940,
+    apr: 22.6,
+    priceRange: {
+      lower: 0.965,
+      upper: 1.025,
+      current: 0.998,
+    },
+    rangeCoverage: 0.96,
+    status: "inRange",
+    aiSummary:
+      "mSOL is trading tightly around peg. AI will only rebalance if validator risk premium widens past 1.5%.",
+    aiAction: "hold",
+    protocolShare: 51,
+    unclaimedFeesUsd: 412,
+    timeInRangeHours: 312,
+  },
+  {
+    id: "mngo-usdc-stress",
+    pool: "Fluxa MNGO/USDC",
+    pair: "MNGO · USDC",
+    liquidityUsd: 41_300,
+    fees24hUsd: 196,
+    totalFeesUsd: 2_980,
+    apr: 72.4,
+    priceRange: {
+      lower: 0.125,
+      upper: 0.188,
+      current: 0.118,
+    },
+    rangeCoverage: 0.08,
+    status: "outRange",
+    aiSummary:
+      "MNGO drew down 24% during overnight volatility. AI paused recipes pending liquidity stress-test replay.",
+    aiAction: "adjust",
+    protocolShare: 14,
+    unclaimedFeesUsd: 142,
+    timeInRangeHours: 24,
+  },
 ];
 
 const mockGuardrailInsights: GuardrailInsight[] = [
   {
     id: "sol-usdc-upper",
+    positionId: "sol-usdc-main",
     title: "SOL/USDC nearing upper bound",
     description:
       "Range coverage fell to 78%. Shift the upper tick +6bps to maintain capture if volatility persists.",
@@ -202,6 +260,7 @@ const mockGuardrailInsights: GuardrailInsight[] = [
   },
   {
     id: "bonk-sol-redeploy",
+    positionId: "bonk-sol",
     title: "BONK/SOL exited range",
     description:
       "AI prepared a redeploy recipe with hedged delta using mini-perp. Approve to restore coverage.",
@@ -211,12 +270,33 @@ const mockGuardrailInsights: GuardrailInsight[] = [
   },
   {
     id: "jup-usdc-harvest",
+    positionId: "jup-usdc-main",
     title: "JUP/USDC harvest window",
     description:
       "Unclaimed fees crossed $500. Harvest in the next cycle to keep AI agent within treasury mandate.",
     urgency: "monitor",
     impact: "Locks accrued yield before auto-compound triggers",
     cta: "Schedule harvest",
+  },
+  {
+    id: "msol-sol-peg",
+    positionId: "msol-sol-stability",
+    title: "Peg deviation within safe band",
+    description:
+      "Validator health looks solid but AI is tracking a minor spread widening. Hold unless premium breaches 1.5%.",
+    urgency: "monitor",
+    impact: "Keeps staking yield flowing while avoiding churn",
+    cta: "Review validator mix",
+  },
+  {
+    id: "mngo-usdc-halt",
+    positionId: "mngo-usdc-stress",
+    title: "MNGO stress replay active",
+    description:
+      "Circuit breaker engaged after drawdown. AI recommends waiting for liquidity replay before redeploying capital.",
+    urgency: "now",
+    impact: "Prevents redeploy during thin order books and elevated MEV",
+    cta: "Inspect stress log",
   },
 ];
 
@@ -278,6 +358,30 @@ const mockFluxaPools: FluxaPool[] = [
     description:
       "High-volatility experimental pool with AI supervised reposition recipes and optional hedging.",
   },
+  {
+    id: "msol-sol",
+    name: "Fluxa mSOL/SOL",
+    pair: "mSOL · SOL",
+    tvlUsd: 364_800,
+    apr: 22.6,
+    depthScore: "Tier 1 depth · peg-protected",
+    status: "live",
+    badge: "Staking",
+    description:
+      "Validator-diversified staking pair with AI peg monitors and automatic validator rotation alerts.",
+  },
+  {
+    id: "mngo-usdc",
+    name: "Fluxa MNGO/USDC",
+    pair: "MNGO · USDC",
+    tvlUsd: 88_500,
+    apr: 72.4,
+    depthScore: "Tier 3 depth · high-vol stress",
+    status: "preview",
+    badge: "Stress lab",
+    description:
+      "Stress-test venue that replays 2022-style cascades so agents can practice halting and redeploying liquidity.",
+  },
 ];
 
 function generatePriceSeries(
@@ -309,6 +413,8 @@ const mockPriceHistory: Record<string, FluxaPricePoint[]> = {
   "sol-usdc": generatePriceSeries(132.4, 4.8, 48),
   "jup-usdc": generatePriceSeries(1.17, 0.06, 48),
   "bonk-sol": generatePriceSeries(0.000026, 0.000005, 48),
+  "msol-sol": generatePriceSeries(1.0, 0.012, 48),
+  "mngo-usdc": generatePriceSeries(0.16, 0.05, 48),
 };
 
 function generateLiquidityBands(
@@ -331,6 +437,8 @@ const mockLiquidityProfiles: Record<string, FluxaLiquidityBand[]> = {
   "sol-usdc": generateLiquidityBands(133.2, 1.4),
   "jup-usdc": generateLiquidityBands(1.21, 0.02),
   "bonk-sol": generateLiquidityBands(0.000028, 0.000003),
+  "msol-sol": generateLiquidityBands(1.0, 0.01),
+  "mngo-usdc": generateLiquidityBands(0.15, 0.01),
 };
 
 const mockPositionEvents: FluxaPositionEvent[] = [
@@ -378,40 +486,70 @@ const mockPositionEvents: FluxaPositionEvent[] = [
     impact: "Protected downside during 14% move",
     aiActor: "Risk Sentinel",
   },
+  {
+    id: "evt-msol-001",
+    positionId: "msol-sol-stability",
+    timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
+    type: "message",
+    title: "Validator rotation notice",
+    description:
+      "Stake redistribution triggered after validator score dipped. AI deferred rebalance due to low premium drift.",
+    impact: "Maintained peg while optimizing staking yield",
+    aiActor: "Fluxa Yield AI",
+  },
+  {
+    id: "evt-mngo-001",
+    positionId: "mngo-usdc-stress",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    type: "alert",
+    title: "Stress replay in progress",
+    description:
+      "Replaying Nov 2022 cascade to validate guardrail response. Orders halted until test completes.",
+    impact: "Prevents false positives when redeploying liquidity",
+    aiActor: "Risk Sentinel",
+  },
 ];
 
 export function getMockFluxaPositions() {
+  requireMocks("getMockFluxaPositions");
   return mockFluxaPositions;
 }
 
 export function getGuardrailInsights() {
+  requireMocks("getGuardrailInsights");
   return mockGuardrailInsights;
 }
 
 export function getTrustMetrics() {
+  requireMocks("getTrustMetrics");
   return mockTrustMetrics;
 }
 
 export function getFluxaPools() {
+  requireMocks("getFluxaPools");
   return mockFluxaPools;
 }
 
 export async function fetchMockFluxaPositions(): Promise<FluxaPosition[]> {
+  requireMocks("fetchMockFluxaPositions");
   await simulateLatency();
   return mockFluxaPositions;
 }
 
 export async function fetchGuardrailInsights(): Promise<GuardrailInsight[]> {
+  requireMocks("fetchGuardrailInsights");
   await simulateLatency();
   return mockGuardrailInsights;
 }
 
 export async function fetchTrustMetrics(): Promise<TrustMetric[]> {
+  requireMocks("fetchTrustMetrics");
   await simulateLatency();
   return mockTrustMetrics;
 }
 
 export async function fetchFluxaPools(): Promise<FluxaPool[]> {
+  requireMocks("fetchFluxaPools");
   await simulateLatency();
   return mockFluxaPools;
 }
@@ -425,6 +563,7 @@ export async function fetchFluxaPriceHistory(
   poolId: string,
   options: PriceHistoryOptions = {}
 ): Promise<FluxaPricePoint[]> {
+  requireMocks("fetchFluxaPriceHistory");
   await simulateLatency(90, 180);
   const { points = 48, resolutionMinutes = 30 } = options;
   const existing = mockPriceHistory[poolId];
@@ -451,6 +590,7 @@ export async function fetchFluxaPriceHistory(
 export async function fetchFluxaLiquidityProfile(
   poolId: string
 ): Promise<FluxaLiquidityBand[]> {
+  requireMocks("fetchFluxaLiquidityProfile");
   await simulateLatency(80, 140);
   return mockLiquidityProfiles[poolId] ?? generateLiquidityBands(1, 0.01);
 }
@@ -458,6 +598,7 @@ export async function fetchFluxaLiquidityProfile(
 export async function fetchFluxaPositionEvents(
   positionId: string
 ): Promise<FluxaPositionEvent[]> {
+  requireMocks("fetchFluxaPositionEvents");
   await simulateLatency(60, 120);
   return mockPositionEvents.filter((event) => event.positionId === positionId);
 }
@@ -465,6 +606,7 @@ export async function fetchFluxaPositionEvents(
 export async function fetchFluxaSwapQuote(
   request: FluxaSwapQuoteRequest
 ): Promise<FluxaSwapQuote> {
+  requireMocks("fetchFluxaSwapQuote");
   await simulateLatency(110, 180);
 
   const history =

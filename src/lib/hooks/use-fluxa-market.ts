@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Market data hooks are backed by mock fetchers until NEXT_PUBLIC_USE_MOCKS
+ * is disabled and real Solana/Helius integrations are wired in.
+ */
+
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import {
@@ -76,8 +81,11 @@ export function useFluxaLiquidityProfile(poolId: string) {
   return useQuery(liquidityProfileOptions(poolId));
 }
 
-export function useFluxaPositionEvents(positionId: string) {
-  return useQuery(positionEventsOptions(positionId));
+export function useFluxaPositionEvents(positionId: string, enabled = true) {
+  return useQuery({
+    ...positionEventsOptions(positionId),
+    enabled,
+  });
 }
 
 export function useFluxaSwapQuote(

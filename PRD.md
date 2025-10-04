@@ -54,6 +54,7 @@ Based on analysis of competitor failures and user frustration patterns:
 - **i18n:** **next-intl**; **Zod** + **react-hook-form** for safe forms and typed API edges.
 - **Accessibility & testing:** Playwright + axe, vitest, Lighthouse budgets in CI.
 - **Explicit caching** everywhere (Next 15 requirement) + Node ≥ 20 runtime.
+- **Feature flags:** `NEXT_PUBLIC_USE_MOCKS` keeps preview builds on the mock data layer until live Solana integrations replace it.
 
 ---
 

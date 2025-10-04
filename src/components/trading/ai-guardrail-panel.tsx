@@ -36,9 +36,10 @@ const urgencyLabel: Record<GuardrailInsight["urgency"], string> = {
 
 interface GuardrailPanelProps {
   insights: GuardrailInsight[];
+  onSelect?(insight: GuardrailInsight): void;
 }
 
-export function AIGuardrailPanel({ insights }: GuardrailPanelProps) {
+export function AIGuardrailPanel({ insights, onSelect }: GuardrailPanelProps) {
   return (
     <section
       aria-label="AI guardrail insights"
@@ -86,7 +87,15 @@ export function AIGuardrailPanel({ insights }: GuardrailPanelProps) {
             </div>
             <button
               type="button"
-              className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-[color:var(--border-soft)] px-3 py-1.5 text-xs font-semibold text-[color:var(--brand)] transition-colors hover:border-[color:var(--brand)]"
+              onClick={
+                onSelect
+                  ? () => {
+                      onSelect(insight);
+                    }
+                  : undefined
+              }
+              disabled={!onSelect}
+              className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-[color:var(--border-soft)] px-3 py-1.5 text-xs font-semibold text-[color:var(--brand)] transition-colors hover:border-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {insight.cta}
             </button>

@@ -1,14 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { AlertTriangle, BadgeCheck, RefreshCcw, Wallet } from "lucide-react";
 
 import { AIGuardrailPanel } from "@/components/trading/ai-guardrail-panel";
+import { GuardrailDetailDialog } from "@/components/trading/guardrail-detail-dialog";
 import { PositionCard } from "@/components/trading/position-card";
 import { PositionSummary } from "@/components/trading/position-summary";
 import { TrustMetricCard } from "@/components/trading/trust-metric-card";
+import { isMockDataEnabled } from "@/lib/config/feature-flags";
+import type { GuardrailInsight } from "@/lib/data/fluxa";
 import { useFluxaPositionsOverview } from "@/lib/hooks/use-fluxa-positions";
 
 /**
@@ -17,6 +21,11 @@ import { useFluxaPositionsOverview } from "@/lib/hooks/use-fluxa-positions";
  */
 export default function PositionsPage() {
   const { connected } = useWallet();
+  const [guardrailOpen, setGuardrailOpen] = useState(false);
+  const [selectedGuardrail, setSelectedGuardrail] =
+    useState<GuardrailInsight | null>(null);
+  const [exportFeedback, setExportFeedback] = useState<string | null>(null);
+  const isMocking = isMockDataEnabled();
   const { positionsQuery, guardrailQuery, trustMetricsQuery, summaryMetrics } =
     useFluxaPositionsOverview();
 
@@ -50,6 +59,96 @@ export default function PositionsPage() {
       trustMetricsQuery.refetch(),
     ]);
   };
+
+  const handleGuardrailSelect = (insight: GuardrailInsight) => {
+    setSelectedGuardrail(insight);
+    setGuardrailOpen(true);
+  };
+
+  const toCsvValue = (value: string | number) =>
+    `"${String(value).replace(/"/g, '""')}"`;
+
+  const handleExport = () => {
+    if (positions.length === 0) {
+      return;
+    }
+
+    try {
+      const headers = [
+        "Pool",
+        "Pair",
+        "Liquidity USD",
+        "Fees 24h USD",
+        "Total Fees USD",
+        "APR %",
+        "Range Lower",
+        "Range Upper",
+        "Current Price",
+        "Range Coverage %",
+        "Status",
+        "Protocol Share %",
+        "Unclaimed Fees USD",
+        "Time In Range Hours",
+        "AI Summary",
+        "AI Action",
+      ];
+
+      const rows = positions.map((position) => {
+        const coveragePercent = (position.rangeCoverage * 100).toFixed(1);
+        const protocolShare = `${position.protocolShare.toFixed(0)}%`;
+        const apr = position.apr.toFixed(2);
+        return [
+          position.pool,
+          position.pair,
+          position.liquidityUsd.toFixed(2),
+          position.fees24hUsd.toFixed(2),
+          position.totalFeesUsd.toFixed(2),
+          apr,
+          position.priceRange.lower,
+          position.priceRange.upper,
+          position.priceRange.current,
+          coveragePercent,
+          position.status,
+          protocolShare,
+          position.unclaimedFeesUsd.toFixed(2),
+          position.timeInRangeHours,
+          position.aiSummary,
+          position.aiAction ?? "",
+        ]
+          .map(toCsvValue)
+          .join(",");
+      });
+
+      const csv = [headers.map(toCsvValue).join(","), ...rows].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `fluxa-positions-${new Date().toISOString().slice(0, 19)}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setExportFeedback(
+        `Exported ${positions.length} position${positions.length === 1 ? "" : "s"} to CSV.`
+      );
+    } catch (error) {
+      console.error("Failed to generate CSV", error);
+      setExportFeedback("Unable to generate CSV right now. Please retry.");
+    }
+  };
+
+  useEffect(() => {
+    if (!exportFeedback) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setExportFeedback(null), 6000);
+    return () => window.clearTimeout(timeout);
+  }, [exportFeedback]);
 
   if (!connected) {
     return (
@@ -125,8 +224,13 @@ export default function PositionsPage() {
         </div>
         <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] px-4 py-1.5 text-xs font-semibold text-[color:var(--brand)]">
           <BadgeCheck className="size-4" aria-hidden="true" />
-          Fluxa mainnet beta
+          {isMocking ? "Fluxa preview dataset" : "Fluxa mainnet beta"}
         </span>
+        <p className="text-xs text-[color:var(--text-subtle)]">
+          {isMocking
+            ? "Mock telemetry is active via NEXT_PUBLIC_USE_MOCKS. Disable once live Solana feeds are connected."
+            : "Live telemetry connected. Leave NEXT_PUBLIC_USE_MOCKS=false in production."}
+        </p>
       </section>
 
       {isError && (
@@ -168,7 +272,10 @@ export default function PositionsPage() {
         {showSkeleton ? (
           <GuardrailSkeleton />
         ) : (
-          <AIGuardrailPanel insights={guardrails} />
+          <AIGuardrailPanel
+            insights={guardrails}
+            onSelect={handleGuardrailSelect}
+          />
         )}
         <section aria-label="Trust telemetry" className="flex flex-col gap-3">
           <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--text-subtle)]">
@@ -203,13 +310,24 @@ export default function PositionsPage() {
               1.5.
             </p>
           </div>
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)] transition hover:border-[color:var(--brand-soft)] hover:text-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-70"
-            disabled={positions.length === 0}
-          >
-            Export performance CSV
-          </button>
+          <div className="space-y-2 text-sm">
+            <button
+              type="button"
+              onClick={handleExport}
+              className="inline-flex items-center gap-2 rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--surface-card)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)] transition hover:border-[color:var(--brand-soft)] hover:text-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-70"
+              disabled={positions.length === 0 || showSkeleton}
+            >
+              Export performance CSV
+            </button>
+            {exportFeedback ? (
+              <p
+                className="text-xs text-[color:var(--text-subtle)]"
+                aria-live="polite"
+              >
+                {exportFeedback}
+              </p>
+            ) : null}
+          </div>
         </header>
 
         {showSkeleton ? (
@@ -224,6 +342,17 @@ export default function PositionsPage() {
           <PositionsEmptyState />
         )}
       </section>
+
+      <GuardrailDetailDialog
+        open={guardrailOpen}
+        onOpenChange={(open) => {
+          setGuardrailOpen(open);
+          if (!open) {
+            setSelectedGuardrail(null);
+          }
+        }}
+        insight={selectedGuardrail}
+      />
     </div>
   );
 }
