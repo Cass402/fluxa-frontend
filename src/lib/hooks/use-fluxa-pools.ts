@@ -2,11 +2,11 @@
 
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { getFluxaPools, type FluxaPool } from "@/lib/data/fluxa";
+import { fetchFluxaPools, type FluxaPool } from "@/lib/data/fluxa";
 
 const poolsOptions = queryOptions({
   queryKey: ["fluxa", "pools"],
-  queryFn: async (): Promise<FluxaPool[]> => getFluxaPools(),
+  queryFn: async (): Promise<FluxaPool[]> => fetchFluxaPools(),
   staleTime: 300_000,
 });
 

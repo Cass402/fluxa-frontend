@@ -4,9 +4,9 @@ import { useMemo } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import {
-  getGuardrailInsights,
-  getMockFluxaPositions,
-  getTrustMetrics,
+  fetchGuardrailInsights,
+  fetchMockFluxaPositions,
+  fetchTrustMetrics,
   type FluxaPosition,
   type GuardrailInsight,
   type TrustMetric,
@@ -14,19 +14,19 @@ import {
 
 const positionsOptions = queryOptions({
   queryKey: ["fluxa", "positions"],
-  queryFn: async (): Promise<FluxaPosition[]> => getMockFluxaPositions(),
+  queryFn: async (): Promise<FluxaPosition[]> => fetchMockFluxaPositions(),
   staleTime: 10_000,
 });
 
 const guardrailOptions = queryOptions({
   queryKey: ["fluxa", "guardrails"],
-  queryFn: async (): Promise<GuardrailInsight[]> => getGuardrailInsights(),
+  queryFn: async (): Promise<GuardrailInsight[]> => fetchGuardrailInsights(),
   staleTime: 30_000,
 });
 
 const trustMetricsOptions = queryOptions({
   queryKey: ["fluxa", "trust-metrics"],
-  queryFn: async (): Promise<TrustMetric[]> => getTrustMetrics(),
+  queryFn: async (): Promise<TrustMetric[]> => fetchTrustMetrics(),
   staleTime: 30_000,
 });
 
